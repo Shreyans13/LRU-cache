@@ -1,0 +1,9 @@
+{
+  "name": "lru-cache",
+  "version": "1.0.0",
+  "description": "trying my own implementation for cache ",
+  "main": "index.ts",
+  "author": "Shreyans13",
+  "license": "MIT",
+  "private": true
+}
