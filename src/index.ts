@@ -3,8 +3,10 @@
 // const max16 = Math.pow(2, 16) - 1 
 // const max32 = Math.pow(2, 32) - 1 
 
+import { INPUT_PARAMS, SET_POP } from "./types"
 
-export class LRUCache<K extends string | number | symbol, V extends string | number | symbol> {
+
+export class LRUCache<K extends INPUT_PARAMS, V extends INPUT_PARAMS> {
     private capacity: number
     private constants: {
         MAX_INTEGER_8BIT: 255
@@ -112,5 +114,49 @@ export class LRUCache<K extends string | number | symbol, V extends string | num
         const pointer = this.items[key];
         if (typeof pointer === "undefined") return null;
         return this.ValueList[pointer]
+    }
+
+    public setPop = (key: K, value: V): SET_POP<K, V> => {
+        let pointer = this.items[key]
+        let oldValue;
+        let oldKey;
+        if (pointer != undefined) {
+            this.updatePointers(pointer)
+            oldKey = key
+            oldValue = this.ValueList[pointer];
+            this.ValueList[pointer] = value;
+            return {
+                evictionPolicy: null,
+                key,
+                value
+            }
+        } else {
+            if (this.size < this.capacity)
+                pointer = this.size++;
+            else {
+                pointer = this.tail
+                this.tail = this.backward[pointer]
+                oldValue = this.ValueList[pointer]
+                oldKey = this.KeyList[pointer]
+                delete this.items[this.KeyList[pointer]] // eslint-disable-line @typescript-eslint/no-dynamic-delete
+            }
+
+            this.items[key] = pointer;
+            this.KeyList[pointer] = key;
+            this.ValueList[pointer] = value;
+
+            this.forward[pointer] = this.head;
+            this.backward[this.head] = pointer;
+            this.head = pointer;
+
+            if (oldKey === undefined || oldValue === undefined)
+                return { evictionPolicy: null, key, value }
+            else return {
+                evictionPolicy: "CACHE_SIZE_FULL",
+                oldKey,
+                oldValue,
+            }
+
+        }
     }
 }
